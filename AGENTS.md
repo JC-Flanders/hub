@@ -66,21 +66,21 @@ frontend/platform_specific/
 
 ### Prerequisites
 
+- Go 1.25+
 - Node.js 20+
-- Yarn
+- Yarn 1.22.x
 
 ### Running in HTTP Mode (Primary)
 
-```bash
-# Terminal 1 – Frontend (port 5173)
-cd frontend
-yarn install
-yarn dev:http
+Use `README.md` -> `Run From Source (HTTP mode)` as the source of truth for startup commands.
 
-# Terminal 2 – Backend (port 8080)
-cp .env.example .env   # configure as needed
-go run cmd/http/main.go
-```
+Key points for agents:
+
+- Run frontend and backend in separate terminals.
+- Ensure `frontend/dist` exists before `go run cmd/http/main.go`.
+- If ports are busy, keep `PORT`, `BASE_URL`, `FRONTEND_URL`, `VITE_PORT`, and `VITE_API_URL` aligned.
+- Use `WORK_DIR` and `DATABASE_URI` for local throwaway state.
+- Verify both servers while they are running with `curl -I`.
 
 ### Running in Desktop Mode (Wails)
 

@@ -36,10 +36,9 @@ By default Alby Hub uses the embedded LDK based lightning node. Optionally it ca
 
 ### Required Software
 
-- Go
-- Node
-- NPM
-- Yarn
+- Go 1.25+
+- Node.js 20+
+- Yarn 1.22.x
 
 ### Environment setup
 
@@ -47,20 +46,50 @@ By default Alby Hub uses the embedded LDK based lightning node. Optionally it ca
     # edit the config for your needs (Read further down for all the available env options)
     $ vim .env
 
-### Server (HTTP mode)
+### Run From Source (HTTP mode)
 
-1. Create a Lightning Polar setup with two LND nodes and uncomment the Polar LND section in your `.env` file.
+Run the frontend and backend in separate terminals. If a port is already in use, change only the port variables at the top of each block and keep the derived URLs aligned.
 
-2. Compile the frontend or run `touch frontend/dist/tmp` to ensure there are embeddable files available.
+```bash
+# Terminal 1 - frontend
+cd frontend
 
-3. `go run cmd/http/main.go`
+FRONTEND_PORT=5173
+BACKEND_PORT=8080
 
-### React Frontend (HTTP mode)
+yarn install
+VITE_PORT="$FRONTEND_PORT" \
+VITE_API_URL="http://localhost:$BACKEND_PORT" \
+yarn dev:http
+```
 
-Go to `/frontend`
+```bash
+# Terminal 2 - backend, from repo root
+FRONTEND_PORT=5173
+BACKEND_PORT=8080
+LDK_PORT=9735
 
-1. `yarn install`
-2. `yarn dev:http`
+cp .env.example .env
+mkdir -p .data frontend/dist
+touch frontend/dist/tmp
+
+PORT="$BACKEND_PORT" \
+BASE_URL="http://localhost:$BACKEND_PORT" \
+FRONTEND_URL="http://localhost:$FRONTEND_PORT" \
+WORK_DIR="$PWD/.data" \
+DATABASE_URI="$PWD/.data/nwc.db" \
+LDK_LISTENING_ADDRESSES="[::]:$LDK_PORT" \
+go run cmd/http/main.go
+```
+
+Verify both processes while they are running:
+
+```bash
+curl -I http://localhost:5173/
+curl -I http://localhost:8080/
+```
+
+For LND development, create a Lightning Polar setup with two LND nodes and uncomment the Polar LND section in `.env`.
 
 ### HTTP Production build
 
@@ -541,12 +570,7 @@ In this repository. Or manually download the docker-compose.yml file and then ru
 
 #### From source
 
-- install go (e.g. using snap)
-- install build-essential
-- install yarn
-- run `(cd frontend && yarn install`
-- run `(cd frontend && yarn build:http)`
-- run `go run cmd/http/main.go`
+See [Run From Source (HTTP mode)](#run-from-source-http-mode).
 
 ### Render.com
 
